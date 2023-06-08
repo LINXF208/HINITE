@@ -19,7 +19,7 @@
 - tensorflow-gpu==2.4.1
 - scikit-learm==1.1.2
 - seaborn==0.12.0 
-- 
+
 Our experiments are performed by RTX A5000 GPU.  In addition, you need to install the cuDNN8.0 and CUDA11.0.
 
 First, you need to install the TensorFlow 2.4 (or above).
