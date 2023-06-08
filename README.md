@@ -24,7 +24,7 @@
 - seaborn==0.12.0 
 
 Our experiments are performed by RTX A5000 GPU.  In addition, you need to install the cuDNN8.0 and CUDA11.0.
-## Training the HINITE
+## Train the HINITE
 Here, we give an example of training the HINITE using the Youtube dataset.
 
 1. First, you need to decompress the dataset in the "data" folder. 
