@@ -1,5 +1,7 @@
 # HINITE
-![](https://github.com/LINXF208/HINITE/edit/main/A4.png)
+![HINITE](https://github.com/LINXF208/HINITE/edit/main/A4.png)
+![\psi](https://github.com/LINXF208/HINITE/edit/main/A5.png)
+![HIA](https://github.com/LINXF208/HINITE/edit/main/A6.png)
 ## Overview
 - data/ contains the datasets that used in our experiments.
 - save_Models_HINITE will be used to save the trained models.
