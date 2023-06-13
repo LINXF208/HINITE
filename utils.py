@@ -150,7 +150,7 @@ def find_hyperparameter(set_configs,data_name,Model_name,activation,start_split_
             config = set_configs[j]
             cur_model = train(Model_name,tf.cast(cur_all_input,tf.float32),tf.cast(yf,tf.float32),train_idx,val_idx,config, config["iterations"], config["lr_rate"],config["lr_weigh_decay"],config["flag_early_stop"],activation = activation,true_ite= val_true_ite,cur_adj=adjs)
             cur_save_model_name = "model"
-            cur_save_path = './save_Models_HINITE/Model_Youtube1.01.0'+ str(Model_name)[8:-2]  +  '_'+ "divide_"+str(config['divide'])+"_" "split_" + str(i)
+            cur_save_path = './save_Models_HINITE/Model_Youtube_'+ str(Model_name)[8:-2] +"_split_" + str(i)
             if config['rep_alpha'] > 0:
                 cur_save_path += 'rep_alpha' + str(config['rep_alpha'])
             
@@ -175,14 +175,14 @@ def load_data(data_name):
         all_m0 = []
         all_A = []
         for i in range(10):
-            cur_name = "./data/Youtube/1.0k0_1.0k1_1.0ad_Youtube_"
+            cur_name = "./data/Youtube/Youtube_"
             
-            cur_name_x = cur_name + "x_" + str(i)+"_5000.npy"
-            cur_name_t = cur_name + "T_" + str(i)+"_5000.npy"
-            cur_name_yf = cur_name + "yf_" + str(i)+"_5000.npy"
-            cur_name_m1 = cur_name + "y1_spe_" + str(i)+"_5000.npy"
-            cur_name_m0 = cur_name + "y0_spe_" + str(i)+"_5000.npy"
-            cur_name_A = cur_name + "adjs_" + str(i)+"_5000.npy"
+            cur_name_x = cur_name + "x_" + str(i)+".npy"
+            cur_name_t = cur_name + "T_" + str(i)+".npy"
+            cur_name_yf = cur_name + "yf_" + str(i)+".npy"
+            cur_name_m1 = cur_name + "y1_spe_" + str(i)+".npy"
+            cur_name_m0 = cur_name + "y0_spe_" + str(i)+".npy"
+            cur_name_A = cur_name + "adjs_" + str(i)+".npy"
             
             cur_x = np.load(cur_name_x)
             cur_t = np.load(cur_name_t)
