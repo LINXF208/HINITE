@@ -175,14 +175,14 @@ def load_data(data_name):
         all_m0 = []
         all_A = []
         for i in range(10):
-            cur_name = "./data/Youtube/1.0k0_1.0k1_1.0ad_Youtube_"
+            cur_name = "./data/Youtube/Youtube_"
             
-            cur_name_x = cur_name + "x_" + str(i)+"_5000.npy"
-            cur_name_t = cur_name + "T_" + str(i)+"_5000.npy"
-            cur_name_yf = cur_name + "yf_" + str(i)+"_5000.npy"
-            cur_name_m1 = cur_name + "y1_spe_" + str(i)+"_5000.npy"
-            cur_name_m0 = cur_name + "y0_spe_" + str(i)+"_5000.npy"
-            cur_name_A = cur_name + "adjs_" + str(i)+"_5000.npy"
+            cur_name_x = cur_name + "x_" + str(i)+".npy"
+            cur_name_t = cur_name + "T_" + str(i)+".npy"
+            cur_name_yf = cur_name + "yf_" + str(i)+".npy"
+            cur_name_m1 = cur_name + "y1_spe_" + str(i)+".npy"
+            cur_name_m0 = cur_name + "y0_spe_" + str(i)+".npy"
+            cur_name_A = cur_name + "adjs_" + str(i)+".npy"
             
             cur_x = np.load(cur_name_x)
             cur_t = np.load(cur_name_t)

@@ -23,7 +23,6 @@ class HINITEModel(keras.Model):
         super(HINITEModel, self).__init__()
        
 
-        #self.adj = None
         print("Initialization ...")
 
         self.inc_inf_y = []
@@ -58,8 +57,6 @@ class HINITEModel(keras.Model):
             h = ourlayers.reprelayer(config['rep_hidden_shape'][i],activation = self.activation)
             self.rep_layers.append(h)
         
-
-
      
         for i in range(config['GNN_hidden_layer']):
             g = ourlayers.HXGATlayer(att_embedding_size = config['GNN_hidden_shape'][i],hete_att_size=config['hete_att_size'][i], hete_num = len(init_adj),reduction="mean",activation = self.activation, use_bias=False,divide=False)
@@ -69,12 +66,10 @@ class HINITEModel(keras.Model):
         
         for i in range(config['out_T_layer']):
             out_T = keras.layers.Dense(config['out_hidden_shape'][i], activation = self.activation,kernel_initializer=tf.keras.initializers.glorot_uniform())
-
             self.out_T_layers.append(out_T)
    
         for i in range(config['out_C_layer']):
             out_C = keras.layers.Dense(config['out_hidden_shape'][i], activation = self.activation,kernel_initializer=tf.keras.initializers.glorot_uniform())
-            #o_hidden_shape = o_hidden_shape//2
             self.out_C_layers.append(out_C)
        
         self.layer_6_T = keras.layers.Dense(1)
@@ -96,16 +91,9 @@ class HINITEModel(keras.Model):
         mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
 
         GNN = mask_rep_t
-
-     
         for i in range(len(self.gnn_layers)):
-
             GNN = self.gnn_layers[i]([GNN,self.init_adjs])
-             
-          
-        
-       
-
+                     
         if self.flag_norm_gnn:
             GNN_norm = GNN/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square(GNN),axis = 1,keepdims=True),SQRT_CONST,np.inf))
         else: 
@@ -154,7 +142,6 @@ class HINITEModel(keras.Model):
         
         input_tensor = tf.nn.dropout(input_tensor,self.inp_drop)
         
-        
         hidden = input_tensor
         for i in range(len(self.rep_layers)):
             hidden = self.rep_layers[i](hidden,flag = training)
@@ -178,12 +165,9 @@ class HINITEModel(keras.Model):
         else: 
             GNN_norm = GNN*1.0
 
-
-
         concated_data = tf.concat([h_rep_norm,GNN_norm ],axis = 1)
         
         train_concated_data = tf.gather(concated_data,train_idx)
-
         train_input_t = tf.gather(input_t,train_idx)
         train_y = tf.gather(all_y,train_idx)
         train_hidden = tf.gather(h_rep_norm,train_idx)
@@ -196,7 +180,6 @@ class HINITEModel(keras.Model):
             train_y = tf.gather(train_y ,I)
             train_hidden = tf.gather(train_hidden,I)
             train_GNN = tf.gather(train_GNN ,I)
-
 
     
         group_t,group_c,i_0,i_1= utils.divide_TC(train_concated_data ,train_input_t)
@@ -226,11 +209,8 @@ class HINITEModel(keras.Model):
         print("Train loss", pred_error_1)
 
         rep_error_1 = self.rep_alpha * utils.COMP_HSIC(train_hidden,train_input_t)
-       
         print("hsic rep_loss",rep_error_1)
 
-
-        
        
         L_1 =   rep_error_1 + pred_error_1 
         print("total loss",L_1)
