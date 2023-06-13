@@ -23,10 +23,9 @@ class HINITEModel(keras.Model):
         super(HINITEModel, self).__init__()
        
 
-        self.adj = None
+        #self.adj = None
         print("Initialization ...")
 
-        #self.norm_adj = init_adj
         self.inc_inf_y = []
         self.no_inf_y = []
         self.rep_layers = []
@@ -84,7 +83,7 @@ class HINITEModel(keras.Model):
     def call(self, inputtensor,train_idx,training = False):
         input_tensor = inputtensor[:,:-1]
         input_t = tf.constant(inputtensor[:,-1],shape = [input_tensor.shape[0],1])
-        #features = input_tensor
+
         
         hidden = input_tensor
         for i in range(len(self.rep_layers)):
@@ -97,16 +96,16 @@ class HINITEModel(keras.Model):
         mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
 
         GNN = mask_rep_t
-        #all_atts = []
+
      
         for i in range(len(self.gnn_layers)):
-            #cur_A = tf.nn.dropout(self.init_adj,0.5)
+
             GNN = self.gnn_layers[i]([GNN,self.init_adjs])
              
           
         
        
-        #weighted_G = tf.matmul(att_mean,input_t)
+
         if self.flag_norm_gnn:
             GNN_norm = GNN/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square(GNN),axis = 1,keepdims=True),SQRT_CONST,np.inf))
         else: 
@@ -168,18 +167,12 @@ class HINITEModel(keras.Model):
         mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
 
         GNN = mask_rep_t
-        #all_atts = []
-        #cur_adj = self.adj
-        #cur_adj = get_binarized_kneighbors_graph(h_rep_norm, self.topk)
-
+       
         for i in range(len(self.gnn_layers)):
-            #cur_A = tf.nn.dropout(self.init_adj,0.5)
             GNN = self.gnn_layers[i]([GNN,self.init_adjs])
              
             GNN = tf.nn.dropout(GNN,self.GNN_dropout)
    
-       
-        #weighted_G = tf.matmul(att_mean,input_t)
         if self.flag_norm_gnn:
             GNN_norm = GNN/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square(GNN),axis = 1,keepdims=True),SQRT_CONST,np.inf))
         else: 
@@ -233,10 +226,8 @@ class HINITEModel(keras.Model):
         print("Train loss", pred_error_1)
 
         rep_error_1 = self.rep_alpha * utils.COMP_HSIC(train_hidden,train_input_t)
-        #GNN_error_1 = self.GNN_alpha * utils.COMP_HSIC(train_GNN,train_input_t)
-        #cross_error = self.cross_alpha * utils.COMP_HSIC(train_hidden,train_GNN)
+       
         print("hsic rep_loss",rep_error_1)
-        #print("cross loss",cross_error)
 
 
         
@@ -275,8 +266,7 @@ class HINITEModel(keras.Model):
 
         input_t = tf.constant(inputtensor[:,-1],shape = [input_tensor.shape[0],1])
  
-        #bias_list = tf.ones([len(input_tensor),1])
-        #input_tensor = tf.concat([input_tensor,bias_list],1)
+
         
         hidden = input_tensor
         for i in range(len(self.rep_layers)):
@@ -299,11 +289,9 @@ class HINITEModel(keras.Model):
             GNN_norm = GNN/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square(GNN),axis = 1,keepdims=True),SQRT_CONST,np.inf))
         else:
             GNN_norm = GNN*1.0
-        concated_data = tf.concat([h_rep_norm,GNN_norm ],axis = 1)     
-        #concated_data  =  concated_data/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square(concated_data),axis = 1,keepdims=True),SQRT_CONST,np.inf))
-        train_concated_data = tf.gather(concated_data,test_idx)
-        #train_concated_data  =  train_concated_data/ tf.sqrt( tf.clip_by_value(tf.reduce_sum(tf.square( train_concated_data),axis = 1,keepdims=True),SQRT_CONST,np.inf))
 
+        concated_data = tf.concat([h_rep_norm,GNN_norm ],axis = 1)     
+        train_concated_data = tf.gather(concated_data,test_idx)
         train_input_t = tf.gather(input_t,test_idx)
         train_y = tf.gather(all_y,test_idx)
 
