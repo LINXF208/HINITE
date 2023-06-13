@@ -92,9 +92,6 @@ class MGATLayer(keras.layers.Layer):
           
             normalized_att_scores = tf.nn.softmax(
                 dense_cur, axis=-1, )  # head_num None(F) None(F)
-
-          
-            
           
             result = tf.matmul(normalized_att_scores,
                                tf.transpose(features, [1, 0, 2]))  # head_num None F D   [8,2708,8] [8,2708,3]
@@ -217,10 +214,6 @@ class Mixer(keras.layers.Layer):
         return  emb
 
 
-
-    
-
-
 class reprelayer(keras.layers.Layer):
     def __init__(self, num_outputs,activation=tf.nn.relu):
         """ representation layer
@@ -323,8 +316,6 @@ class GATLayer(keras.layers.Layer):
         self.normalized_att_scores = tf.nn.softmax(
             dense, axis=-1, )  
 
-      
-        
       
         result = tf.matmul(self.normalized_att_scores,
                            tf.transpose(features, [1, 0, 2]))  
