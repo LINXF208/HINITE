@@ -150,7 +150,7 @@ def find_hyperparameter(set_configs,data_name,Model_name,activation,start_split_
             config = set_configs[j]
             cur_model = train(Model_name,tf.cast(cur_all_input,tf.float32),tf.cast(yf,tf.float32),train_idx,val_idx,config, config["iterations"], config["lr_rate"],config["lr_weigh_decay"],config["flag_early_stop"],activation = activation,true_ite= val_true_ite,cur_adj=adjs)
             cur_save_model_name = "model"
-            cur_save_path = './save_Models_HINITE/Model_Youtube1.01.0'+ str(Model_name)[8:-2]  +  '_'+ "divide_"+str(config['divide'])+"_" "split_" + str(i)
+            cur_save_path = './save_Models_HINITE/Model_Youtube_'+ str(Model_name)[8:-2] +"_split_" + str(i)
             if config['rep_alpha'] > 0:
                 cur_save_path += 'rep_alpha' + str(config['rep_alpha'])
             
