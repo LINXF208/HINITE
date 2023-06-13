@@ -14,11 +14,9 @@ import scipy.io as scio
 
 
 
-
-
 def COMP_HSIC(X,t,s_x=1,s_y=1):
-
     """ Computes the HSIC(X,t)"""
+
     K = GaussianKernelMatrix(X,s_x)
     L = GaussianKernelMatrix(t,s_y)
     m = X.shape[0]
@@ -36,32 +34,31 @@ def GaussianKernelMatrix(x,sigma = 1):
 
     """ Computes the Gaussian Kernel Matrix"""
     pairwise_distances = pdist2sq(x,x) # Computes the squared Euclidean distance
+
     return tf.exp(-pairwise_distances/2*sigma)
 
 def pdist2sq(X,Y):
     """ Computes the squared Euclidean distance between all pairs x in X, y in Y """
+
     C = -2*tf.matmul(X,tf.transpose(Y))
     nx = tf.reduce_sum(tf.square(X),1,keepdims=True)
     ny = tf.reduce_sum(tf.square(Y),1,keepdims=True)
     D = (C + tf.transpose(ny)) + nx
+
     return D    
 
 def divide_TC(concated_data,input_t):
-    #temp = tf.concat([hidden,GNN,weighted_G],1)
-    #print("input_t",input_t)
+
     i0 = tf.cast((tf.where(input_t < 1)[:,0]),tf.int32)
     i1 = tf.cast((tf.where(input_t > 0)[:,0]),tf.int32)
-    #mask = np.logical_and(np.array(input_t)[:,-1] == 1,1)
-    #print("concated_data",concated_data)
-    #print("mask",mask)
-    group_T = tf.gather(concated_data,i1)
-    #print("group_T",group_T)
-    group_C = tf.gather(concated_data,i0)
 
+    group_T = tf.gather(concated_data,i1)
+    group_C = tf.gather(concated_data,i0)
 
     return tf.constant(group_T),tf.constant(group_C),i0,i1
 
 def split_train_val_test(data,train_ratio,val_ratio,test_ratio):
+
     np.random.seed(42)
     shuffled_indices = np.random.permutation(len(data))
     train_set_size = int(len(data) * train_ratio)
@@ -69,9 +66,11 @@ def split_train_val_test(data,train_ratio,val_ratio,test_ratio):
     train_indices = shuffled_indices[:train_set_size]
     val_indices = shuffled_indices[train_set_size:train_set_size+val_set_size]
     test_indices = shuffled_indices[train_set_size+val_set_size:]
+
     return train_indices,val_indices,test_indices
 
 def train(Model_name,input_data,y,train_idx,val_idx,config_hyperparameters, max_iterations, lr_rate,lr_weigh_decay,flag_early_stop=False,activation = tf.nn.elu,true_ite = [],cur_adj=[]):
+
     cur_all_features = input_data[:,:-1]
     cur_init_A = cur_adj
     cur_model = Model_name(config_hyperparameters,activation=activation,init_adj = cur_init_A) 
@@ -126,17 +125,12 @@ def load_mymodel(load_path,load_name,need_load_model,config_hyperparameters,acti
 	print("load model")
 	return cur_model
 
-
-
-
-
-
-def find_hyperparameter(set_configs,data_name,Model_name,activation,start_split_i,end_split_i):
+def find_hyperparameter(set_configs,data_name,Model_name,activation):
   
 
     data = load_data(data_name)
     train_idx,val_idx,test_idx = split_train_val_test(data[0][0],0.7,0.15,0.15)
-    for i in range(start_split_i,end_split_i):
+    for i in range(0,10):
         cur_all_input, yf,mu1,mu0,adjs= data_preparation(data_name,i,data)
         true_ite = mu1 - mu0
         val_true_ite = true_ite[val_idx]
@@ -150,7 +144,7 @@ def find_hyperparameter(set_configs,data_name,Model_name,activation,start_split_
             config = set_configs[j]
             cur_model = train(Model_name,tf.cast(cur_all_input,tf.float32),tf.cast(yf,tf.float32),train_idx,val_idx,config, config["iterations"], config["lr_rate"],config["lr_weigh_decay"],config["flag_early_stop"],activation = activation,true_ite= val_true_ite,cur_adj=adjs)
             cur_save_model_name = "model"
-            cur_save_path = './save_Models_HINITE/Model_Youtube_'+ str(Model_name)[8:-2] +"_split_" + str(i)
+            cur_save_path = './save_Models_HINITE/Model_' + data_name +'_' + str(Model_name)[8:-2] +"_split_" + str(i)
             if config['rep_alpha'] > 0:
                 cur_save_path += 'rep_alpha' + str(config['rep_alpha'])
             
@@ -210,8 +204,6 @@ def load_data(data_name):
 
 
 def data_preparation(data_name,split_idx,data):
-
-   
    
     if data_name == 'Youtube':
         all_x = data[0]
@@ -248,8 +240,8 @@ def config_pare_HINITE(iterations,lr_rate,lr_weigh_decay,flag_early_stop,use_bat
         all_configs = []
 
         for i in range(len(rep_alpha)):
-            cur_activation = activation
 
+            cur_activation = activation
             config = {}
             config["iterations"] = iterations
             config["lr_rate"] = lr_rate

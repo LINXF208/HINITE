@@ -26,7 +26,7 @@ def main_YB_HINITE():
     )
 
     utils.find_hyperparameter(set_configs=configs,data_name='Youtube',
-                              Model_name=HINITE.HINITEModel,activation=activation,start_split_i=0,end_split_i = 10)
+                              Model_name=HINITE.HINITEModel,activation=activation)
 if __name__ == '__main__':
     main_YB_HINITE()
 
