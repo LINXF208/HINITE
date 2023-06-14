@@ -19,13 +19,15 @@
 - scipy==1.9.2
 - TensorFlow-gpu==2.4.1
 - scikit-learm==1.1.2
-- seaborn==0.12.0 
+- seaborn==0.12.0
 
 Our experiments are performed by RTX A5000 GPU.  In addition, you need to install cuDNN8.0 and CUDA11.0.
+## Datasets
+The datasets with simulated outcomes can be downloaded in https://www.dropbox.com/sh/6e811ndfc4sdfy1/AABynXpVLl4uaj48YiTlo7kWa?dl=0.
 ## Train the HINITE
 Here, we give an example of training the HINITE using the Youtube dataset.
 
-1. First, you need to decompress the dataset in the "data" folder. 
+1. First, you need to download and decompress datasets and put them into the "data" folder. 
 2. Then, you can train the HINITE by running main.py. For example, CUDA_VISIBLE_DEVICES=1 python main.py
 3. Finally, you can open the "Evaluate_for_HINITE.ipynb", and run every cell to evaluate the HINITE. 
 
