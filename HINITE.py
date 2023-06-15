@@ -22,9 +22,7 @@ class HINITEModel(keras.Model):
     def __init__(self,config,activation=tf.nn.relu,init_adj=None):
         super(HINITEModel, self).__init__()
        
-
         print("Initialization ...")
-
         self.inc_inf_y = []
         self.no_inf_y = []
         self.rep_layers = []
@@ -37,11 +35,8 @@ class HINITEModel(keras.Model):
         for i in range(len(init_adj)):
         	temp_AplusI = init_adj[i] + tf.eye(init_adj[i].shape[0])
         	self.init_adjs.append(temp_AplusI)
-        print("num of adjs",self.init_adjs)
-
+        #print("num of adjs",self.init_adjs)
         self.activation = activation
-
-        
         self.rep_alpha = config['rep_alpha']
         self.flag_norm_gnn= config['flag_norm_gnn']
         self.flag_norm_rep= config['flag_norm_rep']
@@ -50,7 +45,6 @@ class HINITEModel(keras.Model):
         self.rep_dropout = config['rep_dropout']
         self.inp_drop = config['inp_dropout']
         self.use_batch = config['use_batch']
-
         self.optimizer = keras.optimizers.Adam(lr=config['lr_rate'],decay = config['lr_weigh_decay'])
         
         for i in range(config['rep_hidden_layer']):
@@ -75,10 +69,11 @@ class HINITEModel(keras.Model):
         self.layer_6_T = keras.layers.Dense(1)
         self.layer_6_C = keras.layers.Dense(1)
         self.result = None
-    def call(self, inputtensor,train_idx,training = False):
+
+    def call(self, inputtensor,idxs,training = False):
+
         input_tensor = inputtensor[:,:-1]
         input_t = tf.constant(inputtensor[:,-1],shape = [input_tensor.shape[0],1])
-
         
         hidden = input_tensor
         for i in range(len(self.rep_layers)):
@@ -88,9 +83,9 @@ class HINITEModel(keras.Model):
         else:
             h_rep_norm = hidden * 1.0
             
-        mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
+        concat_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
 
-        GNN = mask_rep_t
+        GNN = concat_rep_t
         for i in range(len(self.gnn_layers)):
             GNN = self.gnn_layers[i]([GNN,self.init_adjs])
                      
@@ -99,46 +94,27 @@ class HINITEModel(keras.Model):
         else: 
             GNN_norm = GNN*1.0
 
-
-
         concated_data = tf.concat([h_rep_norm,GNN_norm ],axis = 1)
-        
-        train_concated_data = tf.gather(concated_data,train_idx)
-
-        train_input_t = tf.gather(input_t,train_idx)
-        #train_y = tf.gather(all_y,train_idx)
-        train_hidden = tf.gather(h_rep_norm,train_idx)
-        train_GNN = tf.gather(GNN_norm,train_idx)
-
-    
+        gathered_concated_data = tf.gather(concated_data,idxs)
        
-        outnn_T = train_concated_data
+        outnn_T = gathered_concated_data
         for i in range(len(self.out_T_layers)):
             outnn_T = self.out_T_layers[i](outnn_T)
            
         output_T = self.layer_6_T(outnn_T)
 
-        outnn_C = train_concated_data
+        outnn_C = gathered_concated_data
         for i in range(len(self.out_T_layers)):
             outnn_C = self.out_C_layers[i](outnn_C)
-           
 
         output_C = self.layer_6_C(outnn_C)
-
-      
-        
-       
-
-        
-        
-        
     
         return output_T,output_C
     
     def get_loss(self,inputtensor,all_y,train_idx,training = True):
+
         input_tensor = inputtensor[:,:-1]
         input_t = tf.constant(inputtensor[:,-1],shape = [input_tensor.shape[0],1])
-        
         
         input_tensor = tf.nn.dropout(input_tensor,self.inp_drop)
         
@@ -151,13 +127,12 @@ class HINITEModel(keras.Model):
         else:
             h_rep_norm = hidden * 1.0
             
-        mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
+        concat_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
 
-        GNN = mask_rep_t
+        GNN = concat_rep_t
        
         for i in range(len(self.gnn_layers)):
-            GNN = self.gnn_layers[i]([GNN,self.init_adjs])
-             
+            GNN = self.gnn_layers[i]([GNN,self.init_adjs])    
             GNN = tf.nn.dropout(GNN,self.GNN_dropout)
    
         if self.flag_norm_gnn:
@@ -196,13 +171,9 @@ class HINITEModel(keras.Model):
             outnn_C = self.out_C_layers[i](outnn_C)
             outnn_C =  tf.nn.dropout(outnn_C,self.out_dropout)
            
-
         output_C = self.layer_6_C(outnn_C)
 
         y_pre = tf.dynamic_stitch([i_0,i_1],[output_C,output_T])
-
-        p_t = tf.divide(tf.reduce_sum(train_input_t),train_input_t.shape[0])
-        
         
         clf_error_1_pri = tf.reduce_mean(tf.square(train_y - y_pre))   
         pred_error_1 = clf_error_1_pri 
@@ -211,43 +182,38 @@ class HINITEModel(keras.Model):
         rep_error_1 = self.rep_alpha * utils.COMP_HSIC(train_hidden,train_input_t)
         print("hsic rep_loss",rep_error_1)
 
-       
         L_1 =   rep_error_1 + pred_error_1 
         print("total loss",L_1)
-
-        
-        
-        
     
         return L_1
     
    
     
     def get_grad(self,inputtensor,y,train_idx):
+
         with tf.GradientTape() as tape:
             tape.watch(self.variables)
             L = self.get_loss(inputtensor,y,train_idx)
             self.train_loss = L
             g = tape.gradient(L,self.variables)
+
         return g
         
     def network_learn(self, inputtensor,y,train_idx,learning_rate,learning_w_decay):
+
         g = self.get_grad(inputtensor,y,train_idx)
         self.optimizer.apply_gradients(zip(g,self.variables))
+
         return self.train_loss
         
- 
-    
   
             
-    def CV_y(self,inputtensor,all_y,test_idx,training = False):
+    def CV_y(self,inputtensor,all_y,idxs,training = False):
+
         print("CV ...")
         input_tensor = inputtensor[:,:-1]
-
         input_t = tf.constant(inputtensor[:,-1],shape = [input_tensor.shape[0],1])
- 
 
-        
         hidden = input_tensor
         for i in range(len(self.rep_layers)):
             hidden = self.rep_layers[i](hidden,flag = training)
@@ -256,10 +222,10 @@ class HINITEModel(keras.Model):
         else:
             h_rep_norm = hidden*1.0
      
-        mask_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
+        concat_rep_t = tf.concat([h_rep_norm,input_t],axis = 1)
          
     
-        GNN = mask_rep_t
+        GNN = concat_rep_t
 
         for i in range(len(self.gnn_layers)):
             GNN = self.gnn_layers[i]([GNN,self.init_adjs ])
@@ -271,18 +237,18 @@ class HINITEModel(keras.Model):
             GNN_norm = GNN*1.0
 
         concated_data = tf.concat([h_rep_norm,GNN_norm ],axis = 1)     
-        train_concated_data = tf.gather(concated_data,test_idx)
-        train_input_t = tf.gather(input_t,test_idx)
-        train_y = tf.gather(all_y,test_idx)
+        gathered_concated_data = tf.gather(concated_data,idxs)
+        gathered_input_t = tf.gather(input_t,idxs)
+        gathered_y = tf.gather(all_y,idxs)
 
-        group_t,group_c,i_0,i_1 = utils.divide_TC(train_concated_data ,train_input_t)
-        p = tf.divide(tf.reduce_sum(train_input_t),train_input_t.shape[0])
-        y_T = tf.gather(train_y,i_1)
-        y_C = tf.gather(train_y,i_0)
+        group_t,group_c,i_0,i_1 = utils.divide_TC(gathered_concated_data ,gathered_input_t)
+        p = tf.divide(tf.reduce_sum(gathered_input_t),gathered_input_t.shape[0])
+        y_T = tf.gather(gathered_y,i_1)
+        y_C = tf.gather(gathered_y,i_0)
+
         outnn_T = group_t
         for i in range(len(self.out_T_layers)):
             outnn_T = self.out_T_layers[i](outnn_T)
-
 
         output_T = self.layer_6_T(outnn_T)
 
@@ -292,20 +258,12 @@ class HINITEModel(keras.Model):
 
         output_C = self.layer_6_C(outnn_C)
 
-
-
         clf_error_T_1_pri = tf.reduce_mean(tf.square(y_T - output_T))
         clf_error_C_1_pri = tf.reduce_mean(tf.square(y_C - output_C))
 
-
-
         pred_error_1 = clf_error_T_1_pri+clf_error_C_1_pri
         print("cv","T loss", clf_error_T_1_pri,"C loss", clf_error_C_1_pri)
-   
        
-        
-            
-        
         return pred_error_1
     
  
