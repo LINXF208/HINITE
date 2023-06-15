@@ -80,6 +80,7 @@ def train(Model_name,input_data,y,train_idx,val_idx,config_hyperparameters, max_
     sum_CV_loss = 0
     losslist = []
     for i in range(max_iterations):
+        
         #print("iter",i)
         loss = cur_model.CV_y(tf.cast(input_data,tf.float32),tf.cast(y,tf.float32),train_idx)
         total_loss = cur_model.network_learn(tf.cast(input_data,tf.float32),tf.cast(y,tf.float32),train_idx,learning_rate=lr_rate,learning_w_decay =lr_weigh_decay)
@@ -110,23 +111,26 @@ def train(Model_name,input_data,y,train_idx,val_idx,config_hyperparameters, max_
 
  
 def save_mymodel(save_path,save_name,need_save_model):
+
 	cur_path = save_path + '/' + save_name
 	need_save_model.save_weights(cur_path )
 	print("Already saved the model's weights in file" + cur_path  )
 
 def load_mymodel(load_path,load_name,need_load_model,config_hyperparameters,activation,init_A):
+
 	cur_model = need_load_model(config_hyperparameters,activation,init_A)
 	cur_path = load_path + '/' + load_name
 	cur_model.load_weights(cur_path)
 	print("load model")
+
 	return cur_model
 
 def find_hyperparameter(set_configs,data_name,Model_name,activation):
   
-
     data = load_data(data_name)
     train_idx,val_idx,test_idx = split_train_val_test(data[0][0],0.7,0.15,0.15)
     for i in range(0,10):
+
         cur_all_input, yf,mu1,mu0,adjs= data_preparation(data_name,i,data)
         true_ite = mu1 - mu0
         val_true_ite = true_ite[val_idx]
@@ -135,7 +139,9 @@ def find_hyperparameter(set_configs,data_name,Model_name,activation):
         test_true_ite = true_ite[test_idx]
         print("test ite",val_true_ite)
         test_true_ate = np.mean(true_ite[test_idx])
+
         for j in range(len(set_configs)):
+
             cur_val_results = []
             config = set_configs[j]
             cur_model = train(Model_name,tf.cast(cur_all_input,tf.float32),tf.cast(yf,tf.float32),train_idx,val_idx,config, config["iterations"], config["lr_rate"],config["lr_weigh_decay"],config["flag_early_stop"],activation = activation,true_ite= val_true_ite,cur_adj=adjs)
@@ -149,6 +155,7 @@ def find_hyperparameter(set_configs,data_name,Model_name,activation):
 
 
 def save_results(save_result,save_name):
+
 	np.save(save_name,save_result) 
 	print("saved all results ")
 
@@ -156,7 +163,6 @@ def load_data(data_name):
 
     data = []
 
-    
     if data_name == 'Youtube':
         all_x = []
         all_t = []
@@ -165,6 +171,7 @@ def load_data(data_name):
         all_m0 = []
         all_A = []
         for i in range(10):
+
             cur_name = "./data/Youtube/Youtube_"
             
             cur_name_x = cur_name + "x_" + str(i)+".npy"
@@ -202,6 +209,7 @@ def load_data(data_name):
 def data_preparation(data_name,split_idx,data):
    
     if data_name == 'Youtube':
+
         all_x = data[0]
         all_t = data[1]
         all_yf = data[2]
