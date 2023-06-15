@@ -132,7 +132,7 @@ class HXGATlayer(keras.layers.Layer):
                   att_embedding_size: hidden shape
                   head_num: the number of heads
                   activation: activation function
-                  reduction: concat or mean operation
+                  reduction: concat or mean operation for a single GAT layer
                   use_bias: True/False a flag for deciding if the weight bias is used
         """
         
