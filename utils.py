@@ -98,10 +98,6 @@ def train(Model_name,input_data,y,train_idx,val_idx,config_hyperparameters, max_
             losslist_CV.append(sum_CV_loss/20)
             sum_loss = 0
             sum_CV_loss = 0
-        if len(true_ite) > 0:
-            c_val_T, c_val_C = cur_model.pre_no_interf(tf.cast(input_data,tf.float32),val_idx)
-            c_val_ite = c_val_T-c_val_C
-            #print("cur pehe", np.mean((c_val_ite - true_ite)**2))
     plt.plot(range(len(losslist)),losslist,label="Train_loss")
     plt.plot(range(len(losslist_CV)),losslist_CV,label = "Validation_loss")
     plt.xlabel("iteration")
