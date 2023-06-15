@@ -13,7 +13,6 @@ def evaluate_ate_pehe(Model,inputtensor,test_idx,true_ite,true_ate):
                               
     return pehe,err_ate
 
-
 def evalate(Model,inputtensor,test_idx,true_ate,true_y, true_ite = [],RCT_flags=None):
     
     pehe, err_ate = evaluate_ate_pehe(Model,inputtensor,test_idx,true_ite,true_ate)
