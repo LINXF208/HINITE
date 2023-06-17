@@ -1,14 +1,14 @@
 # HINITE
 
 ## Overview
-- data/ contains the datasets that are used in our experiments.
-- save_Models_HINITE will be used to save the trained models.
-- results will be used to save the results.
-- ourlayers.py contains layers of the HINITE.
-- HINITE.py contains the implementation of the HINITE.
-- evaluation.py contains the calculation of the ATE and ITE.
-- main.py It is used to execute a full training run on the Youtube dataset.
-- Evaluate_for_HINITE.ipynb Evaluate the HINITE on the Youtube dataset.
+- data/: It contains the datasets that are used in our experiments.
+- save_Models_HINITE: It is used to save the trained models.
+- results: It is used to save the results.
+- ourlayers.py: It contains layers of the HINITE.
+- HINITE.py: It contains the implementation of the HINITE.
+- evaluation.py: It contains the calculation of the ATE and ITE.
+- main.py: It is used to execute a full training run on the Youtube dataset.
+- Evaluate_for_HINITE.ipynb: It is used to evaluate the HINITE on the Youtube dataset.
 ## Requirements
 - python==3.8.13
 - numpy==1.23.4
@@ -23,7 +23,7 @@
 
 Our experiments are performed by RTX A5000 GPU.  In addition, you need to install cuDNN8.0 and CUDA11.0.
 ## Datasets
-The datasets with simulated outcomes can be downloaded in https://www.dropbox.com/sh/6e811ndfc4sdfy1/AABynXpVLl4uaj48YiTlo7kWa?dl=0.
+The datasets with simulated outcomes can be downloaded at https://www.dropbox.com/sh/6e811ndfc4sdfy1/AABynXpVLl4uaj48YiTlo7kWa?dl=0.
 ## Train the HINITE
 Here, we give an example of training the HINITE using the Youtube dataset.
 
