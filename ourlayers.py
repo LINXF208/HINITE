@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
+
 class MGATLayer(keras.layers.Layer):
     def __init__(
         self,
@@ -247,6 +248,7 @@ class RepLayer(keras.layers.Layer):
         super(RepLayer,self).__init__()
         self.num_outputs = num_outputs
         self.activation = activation
+
     def build(self, input_shape):
         self.kernel = self.add_weight(
             "kernel",
