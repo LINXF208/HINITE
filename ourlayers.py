@@ -247,7 +247,7 @@ class RepLayer(keras.layers.Layer):
         super(RepLayer,self).__init__()
         self.num_outputs = num_outputs
         self.activation = activation
-    def build(self,input_shape):
+    def build(self, input_shape):
         self.kernel = self.add_weight(
             "kernel",
             shape=[int(input_shape[-1]), self.num_outputs],
