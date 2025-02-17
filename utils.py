@@ -120,8 +120,7 @@ def train(
         cur_adj=[]
     ):
     cur_all_features = input_data[:, :-1]
-    cur_init_A = cur_adj
-    cur_model = Model_name(config_hyperparameters, activation=activation, init_adj=cur_init_A) 
+    cur_model = Model_name(config_hyperparameters, activation=activation, init_adj=cur_adj) 
 
     count = 0
     sum_loss = 0
