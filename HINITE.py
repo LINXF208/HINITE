@@ -121,7 +121,6 @@ class HINITE(keras.Model):
         concat_rep_t = tf.concat([h_rep_norm, input_t], axis=1)
 
         GNN = concat_rep_t
-       
         for i in range(len(self.gnn_layers)):
             GNN = self.gnn_layers[i]([GNN, self.init_adjs])    
             GNN = tf.nn.dropout(GNN, self.GNN_dropout)
