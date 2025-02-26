@@ -40,7 +40,6 @@ class HINITE(keras.Model):
             h = ourlayers.RepLayer(config['rep_hidden_shape'][i], activation=self.activation)
             self.rep_layers.append(h)
         
-     
         for i in range(config['GNN_hidden_layer']):
             g = ourlayers.HXGATlayer(
                 att_embedding_size=config['GNN_hidden_shape'][i], 
