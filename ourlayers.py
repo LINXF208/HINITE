@@ -116,13 +116,6 @@ class MGATLayer(keras.layers.Layer):
 
         return  embs 
 
-    def compute_output_shape(self, input_shape):
-        if self.reduction == "concat":
-
-            return (None, self.att_embedding_size * self.head_num)
-        else:
-            return (None, self.att_embedding_size)
-
 
 class HXGATlayer(keras.layers.Layer):
     def __init__(
