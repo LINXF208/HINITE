@@ -11,6 +11,5 @@ def evalate(model, input_tensor, test_idx, true_ate, true_y, true_ite):
     pehe = np.mean((pre_ite - true_ite)**2)
     err_ate = np.abs(pre_ate -true_ate)
     
-    pehe, err_ate = evaluate_ate_pehe(model, input_tensor, test_idx, true_ite, true_ate)
-    
     return pehe, err_ate
+

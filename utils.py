@@ -120,8 +120,7 @@ def train(
         cur_adj=[]
     ):
     cur_all_features = input_data[:, :-1]
-    cur_init_A = cur_adj
-    cur_model = Model_name(config_hyperparameters, activation=activation, init_adj=cur_init_A) 
+    cur_model = Model_name(config_hyperparameters, activation=activation, init_adj=cur_adj) 
 
     count = 0
     sum_loss = 0
@@ -179,7 +178,7 @@ def save_my_model(save_path, save_name, need_save_model):
     print("Already saved the model's weights in file" + path)
 
 
-def load_my_model(load_path, load_name, need_load_model, config, activation):
+def load_my_model(load_path, load_name, need_load_model, config, activation, adjs):
     """
     Load a saved model from a specified path.
 
@@ -193,7 +192,7 @@ def load_my_model(load_path, load_name, need_load_model, config, activation):
     Returns:
         tf.keras.Model: Loaded model instance.
     """
-    model = need_load_model(config, activation)
+    model = need_load_model(config, activation, adjs)
 
     path = load_path + '/' + load_name
 
@@ -241,7 +240,7 @@ def find_hyperparameter(set_configs, data_name, Model_name, activation):
                 cur_save_path += '_rep_alpha' + str(config['rep_alpha'])
 
             os.makedirs(cur_save_path, exist_ok=True)
-            save_mymodel(cur_save_path, cur_save_model_name, cur_model)
+            save_my_model(cur_save_path, cur_save_model_name, cur_model)
 
 
 def save_results(save_result, save_name):
@@ -267,7 +266,7 @@ def load_data(data_name):
             cur_name_m1 = cur_name + "y1_spe_" + str(i) + ".npy"
             cur_name_m0 = cur_name + "y0_spe_" + str(i) + ".npy"
             cur_name_adj = cur_name + "adjs_" + str(i) + ".npy"
-            
+
             cur_x = np.load(cur_name_x)
             cur_t = np.load(cur_name_t)
             cur_yf = np.load(cur_name_yf)
@@ -281,28 +280,56 @@ def load_data(data_name):
             all_m1.append(cur_m1)
             all_m0.append(cur_m0)
             all_adjs.append(cur_adj)
+            
+    elif data_name == 'Flk':
+        all_x = []
+        all_t = []
+        all_yf = []
+        all_m1 = []
+        all_m0 = []
+        all_adjs = []
+        for i in range(10):
+            cur_name = "./data/flk/Flickr"
+            cur_name_x = cur_name + "_" + str(i) + "_x.npy"
+            cur_name_t = cur_name + "_" + str(i)+ "_T.npy"
+            cur_name_yf = cur_name + "_" + str(i) + "_yf.npy"
+            cur_name_m1 = cur_name + "_" + str(i) + "_y1_spe.npy"
+            cur_name_m0 = cur_name + "_" + str(i) + "_y0_spe.npy"
+            cur_name_adj = cur_name + "_" + str(i) + "_adjs.npy"
 
-        data = [all_x, all_t, all_yf, all_m1, all_m0, all_adjs]
+            cur_x = np.load(cur_name_x)
+            cur_t = np.load(cur_name_t)
+            cur_yf = np.load(cur_name_yf)
+            cur_m1 = np.load(cur_name_m1)
+            cur_m0 = np.load(cur_name_m0)
+            cur_adj = np.load(cur_name_adj)
 
-        return data
+            all_x.append(cur_x)
+            all_t.append(cur_t)
+            all_yf.append(cur_yf)
+            all_m1.append(cur_m1)
+            all_m0.append(cur_m0)
+            all_adjs.append(cur_adj)
+            
+    data = [all_x, all_t, all_yf, all_m1, all_m0, all_adjs]
 
+    return data
 
 
 def data_preparation(data_name, split_idx, data):
-   
-    if data_name == 'Youtube':
-        all_x, all_t, all_yf, all_m1, all_m0, all_adj = data[0]
 
-        cur_x = all_x[split_idx]
-        cur_t = all_t[split_idx].reshape(len(cur_t), 1)
-        cur_yf = all_yf[split_idx].reshape(len(cur_yf), 1)
-        cur_m1 = all_m1[split_idx].reshape(len(cur_m1), 1)
-        cur_m0 = all_m0[split_idx].reshape(len(cur_m0), 1)
-        cur_adj = all_adj[split_idx]
+    all_x, all_t, all_yf, all_m1, all_m0, all_adj = data
 
-        cur_all_input = np.concatenate([cur_x, cur_t], 1)
+    cur_x = all_x[split_idx]
+    cur_t = all_t[split_idx].reshape(len(cur_x), 1)
+    cur_yf = all_yf[split_idx].reshape(len(cur_x), 1)
+    cur_m1 = all_m1[split_idx].reshape(len(cur_x), 1)
+    cur_m0 = all_m0[split_idx].reshape(len(cur_x), 1)
+    cur_adj = all_adj[split_idx]
 
-        return cur_all_input, cur_yf, cur_m1, cur_m0, cur_adj
+    cur_all_input = np.concatenate([cur_x, cur_t], 1)
+
+    return cur_all_input, cur_yf, cur_m1, cur_m0, cur_adj
 
 
 def config_pare_HINITE(
@@ -326,7 +353,6 @@ def config_pare_HINITE(
         out_T_layer,
         out_C_layer,
         out_hidden_shape,
-        activation,
         GNN_alpha,
         divide,
         hete_att_size
@@ -336,28 +362,28 @@ def config_pare_HINITE(
 
         for i in range(len(rep_alpha)):
             config = {
-                "iterations": iterations
-                "lr_rate": lr_rate
-                "lr_weigh_decay": lr_weigh_decay
-                "flag_early_stop": flag_early_stop
-                "rep_alpha": rep_alpha[i]
-                "flag_norm_gnn": flag_norm_gnn
-                "flag_norm_rep": flag_norm_rep
-                "out_dropout": out_dropout
-                "GNN_dropout": GNN_dropout
-                "rep_dropout": rep_dropout
-                "inp_dropout": inp_dropout
-                "use_batch": use_batch
-                "rep_hidden_layer": rep_hidden_layer
-                "rep_hidden_shape": rep_hidden_shape
-                "GNN_hidden_layer": GNN_hidden_layer
-                "GNN_hidden_shape": GNN_hidden_shape
-                "head_num_att": head_num_att
-                "out_T_layer": out_T_layer
-                "out_C_layer": out_C_layer
-                "out_hidden_shape": out_hidden_shape
-                "GNN_alpha": GNN_alpha
-                "divide": divide
+                "iterations": iterations,
+                "lr_rate": lr_rate,
+                "lr_weigh_decay": lr_weigh_decay,
+                "flag_early_stop": flag_early_stop,
+                "rep_alpha": rep_alpha[i],
+                "flag_norm_gnn": flag_norm_gnn,
+                "flag_norm_rep": flag_norm_rep,
+                "out_dropout": out_dropout,
+                "GNN_dropout": GNN_dropout,
+                "rep_dropout": rep_dropout,
+                "inp_dropout": inp_dropout,
+                "use_batch": use_batch,
+                "rep_hidden_layer": rep_hidden_layer,
+                "rep_hidden_shape": rep_hidden_shape,
+                "GNN_hidden_layer": GNN_hidden_layer,
+                "GNN_hidden_shape": GNN_hidden_shape,
+                "head_num_att": head_num_att,
+                "out_T_layer": out_T_layer,
+                "out_C_layer": out_C_layer,
+                "out_hidden_shape": out_hidden_shape,
+                "GNN_alpha": GNN_alpha,
+                "divide": divide,
                 "hete_att_size": hete_att_size
             }
 
