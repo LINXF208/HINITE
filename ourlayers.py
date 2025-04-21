@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 from tensorflow import keras
 
+
 class MGATLayer(keras.layers.Layer):
     def __init__(
         self,
@@ -114,13 +115,6 @@ class MGATLayer(keras.layers.Layer):
         embs = tf.concat(embs, axis=1)
 
         return  embs 
-
-    def compute_output_shape(self, input_shape):
-        if self.reduction == "concat":
-
-            return (None, self.att_embedding_size * self.head_num)
-        else:
-            return (None, self.att_embedding_size)
 
 
 class HXGATlayer(keras.layers.Layer):
@@ -247,6 +241,7 @@ class RepLayer(keras.layers.Layer):
         super(RepLayer,self).__init__()
         self.num_outputs = num_outputs
         self.activation = activation
+
     def build(self, input_shape):
         self.kernel = self.add_weight(
             "kernel",
