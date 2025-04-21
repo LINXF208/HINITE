@@ -69,7 +69,7 @@ class HINITE(keras.Model):
         
         hidden = input_x
         for i in range(len(self.rep_layers)):
-            hidden = self.rep_layers[i](hidden, flag=training)
+            hidden = self.rep_layers[i](hidden)
         if self.flag_norm_rep:
             h_rep_norm = hidden / tf.sqrt(tf.clip_by_value(tf.reduce_sum(tf.square(hidden), axis=1, keepdims=True), 1e-10, np.inf))
         else:
@@ -110,7 +110,7 @@ class HINITE(keras.Model):
         
         hidden = input_x
         for i in range(len(self.rep_layers)):
-            hidden = self.rep_layers[i](hidden, flag=training)
+            hidden = self.rep_layers[i](hidden)
             hidden = tf.nn.dropout(hidden, self.rep_dropout)
         if self.flag_norm_rep:
             h_rep_norm = hidden / tf.sqrt(tf.clip_by_value(tf.reduce_sum(tf.square(hidden), axis=1, keepdims=True), 1e-10, np.inf))
@@ -163,15 +163,13 @@ class HINITE(keras.Model):
         pred_error = tf.reduce_mean(tf.square(train_y - y_pre))   
         print("Train loss", pred_error)
 
-        rep_error = self.rep_alpha * utils.COMP_hsic(train_hidden, train_input_t)
+        rep_error = self.rep_alpha * utils.comp_hsic(train_hidden, train_input_t)
         print("hsic rep_loss", rep_error)
 
         L =   rep_error + pred_error 
         print("total loss", L)
 
         return L
-    
-   
     
     def get_grad(self, input_tensor, y, train_idx):
         with tf.GradientTape() as tape:
@@ -194,7 +192,7 @@ class HINITE(keras.Model):
 
         hidden = input_x
         for i in range(len(self.rep_layers)):
-            hidden = self.rep_layers[i](hidden, flag=training)
+            hidden = self.rep_layers[i](hidden)
         if self.flag_norm_rep:
             h_rep_norm = hidden / tf.sqrt(tf.clip_by_value(tf.reduce_sum(tf.square(hidden), axis=1, keepdims=True), 1e-10, np.inf))
         else:
@@ -216,7 +214,7 @@ class HINITE(keras.Model):
         gathered_input_t = tf.gather(input_t, idxs)
         gathered_y = tf.gather(all_y, idxs)
 
-        group_t,group_c,i_0,i_1 = utils.divide_t_c(gathered_concated_data, gathered_input_t)
+        group_t, group_c, i_0, i_1 = utils.divide_t_c(gathered_concated_data, gathered_input_t)
         p = tf.divide(tf.reduce_sum(gathered_input_t), gathered_input_t.shape[0])
         y_T = tf.gather(gathered_y, i_1)
         y_C = tf.gather(gathered_y, i_0)
@@ -233,6 +231,6 @@ class HINITE(keras.Model):
 
         y_pre = tf.dynamic_stitch([i_0, i_1], [output_C, output_T])
         
-        pred_error = tf.reduce_mean(tf.square(train_y - y_pre)) 
+        pred_error = tf.reduce_mean(tf.square(gathered_y - y_pre)) 
 
         return pred_error
