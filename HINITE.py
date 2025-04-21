@@ -170,7 +170,7 @@ class HINITE(keras.Model):
         print("total loss", L)
 
         return L
-    
+
     def get_grad(self, input_tensor, y, train_idx):
         with tf.GradientTape() as tape:
             tape.watch(self.variables)
